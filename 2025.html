@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2025 年度回顾</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    [x-cloak] { display: none !important; }
+    :root {
+      --warm-bg: #fdfaf7;
+      --warm-dark: #451a03; 
+      --warm-accent: #d97706; 
+    }
+    body { background-color: var(--warm-bg); color: var(--warm-dark); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .flip-card { perspective: 1000px; height: 550px; }
+    .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; cursor: pointer; }
+    .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+    .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 1.5rem; overflow-y: auto; padding: 1.75rem; box-shadow: 0 4px 20px rgba(69, 26, 3, 0.08); }
+    .flip-card-back { transform: rotateY(180deg); background: white; border: 2px solid var(--warm-accent); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="antialiased">
+
+  <div class="max-w-md mx-auto min-h-screen bg-white shadow-2xl" x-data="app()" x-cloak>
+    
+    <header class="bg-[#451a03] text-[#fef3c7] p-12 text-center">
+      <h1 class="text-3xl font-bold tracking-widest">昨天、今天、明天 [2025版]</h1>
+      <p class="text-amber-200/60 mt-4 italic text-sm">From：王强，李慧，王晓琛，王晓珑</p>
+    </header>
+
+    <section class="p-6 space-y-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-black flex items-center gap-2">
+            <span class="w-1 h-6 bg-amber-600 rounded-full"></span> 自我反思时间
+        </h2>
+        <div class="flex bg-orange-100/50 p-1 rounded-xl border border-orange-100">
+            <button @click="viewMode = 'byQ'" :class="viewMode === 'byQ' ? 'bg-white shadow-sm text-amber-900' : 'text-orange-700/60'" class="px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all">按题目</button>
+            <button @click="viewMode = 'byP'" :class="viewMode === 'byP' ? 'bg-white shadow-sm text-amber-900' : 'text-orange-700/60'" class="px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all">按成员</button>
+        </div>
+      </div>
+
+      <div x-show="viewMode === 'byQ'" class="space-y-4">
+        <select x-model="activeQ" class="w-full p-4 rounded-2xl border-2 border-orange-50 bg-orange-50/30 text-sm font-bold text-stone-700 outline-none">
+          <template x-for="(title, id) in questions" :key="id">
+            <option :value="id" x-text="'题目' + id + ': ' + title"></option>
+          </template>
+        </select>
+        <div class="space-y-4">
+          <template x-for="ans in answers.filter(a => a.q == activeQ)" :key="ans.p">
+            <div class="p-5 rounded-3xl bg-orange-50/40 border border-orange-100/50">
+              <span class="text-[10px] font-black text-amber-700 uppercase mb-2 block" x-text="ans.p"></span>
+              <p class="text-sm leading-relaxed text-stone-600 whitespace-pre-line" x-text="ans.text"></p>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <div x-show="viewMode === 'byP'" class="space-y-6">
+        <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+            <template x-for="p in ['爸爸', '妈妈', '姐姐', '弟弟']">
+              <button @click="activeP = p" 
+                :class="activeP === p ? 'bg-amber-700 text-white border-amber-700' : 'bg-white text-stone-400 border-stone-200'" 
+                class="px-6 py-2 rounded-xl text-xs font-bold whitespace-nowrap border-2 transition-all" x-text="p"></button>
+            </template>
+        </div>
+        <div class="space-y-3">
+          <template x-for="qId in Object.keys(questions)" :key="qId">
+            <div class="p-5 rounded-3xl border border-stone-100 bg-stone-50/30">
+              <h4 class="text-[10px] font-black text-amber-600/70 mb-2" x-text="questions[qId]"></h4>
+              <p class="text-sm leading-relaxed text-stone-600 whitespace-pre-line" x-text="answers.find(a => a.q == qId && a.p == activeP)?.text || '未回答'"></p>
+            </div>
+          </template>
+        </div>
+      </div>
+    </section>
+
+    <section class="p-6 space-y-6 bg-orange-50/20">
+      <h2 class="text-xl font-black flex items-center gap-2">
+        <span class="w-1 h-6 bg-amber-600 rounded-full"></span> 给每个人的话
+      </h2>
+
+      <div class="bg-amber-100/30 rounded-[2rem] p-6 border border-amber-200/50">
+        <h4 class="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-2">家庭整体建议</h4>
+        <p class="text-xs text-amber-900/80 leading-relaxed font-medium whitespace-pre-line" x-html="familyAdvice"></p>
+      </div>
+
+      <div class="grid grid-cols-4 gap-2">
+        <template x-for="p in ['爸爸', '妈妈', '姐姐', '弟弟']">
+          <button @click="selectedPerson = p; isFlipped = false" 
+            :class="selectedPerson === p ? 'bg-amber-700 text-white' : 'bg-white text-stone-400'"
+            class="py-3 rounded-2xl border border-stone-100 text-[11px] font-black transition-all" x-text="p">
+          </button>
+        </template>
+      </div>
+
+      <div class="flip-card" :class="isFlipped ? 'flipped' : ''" @click="isFlipped = !isFlipped">
+        <div class="flip-card-inner">
+          <div class="flip-card-front bg-amber-700 text-amber-50 flex flex-col">
+            <p class="text-sm leading-loose font-bold whitespace-pre-line" x-html="profiles[selectedPerson].letter"></p>
+            <p class="mt-auto text-[10px] opacity-50 text-center font-bold tracking-widest">点击翻转查看建议 ↺</p>
+          </div>
+          <div class="flip-card-back flex flex-col">
+            <h3 class="text-lg font-black text-amber-900 mb-6">深度建议</h3>
+            <div class="space-y-6 overflow-y-auto no-scrollbar">
+              <div>
+                <span class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">性格关键词</span>
+                <p class="text-xs font-bold text-amber-800 mt-2" x-text="profiles[selectedPerson].keywords"></p>
+              </div>
+              <div class="space-y-3">
+                <span class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">行动建议</span>
+                <template x-for="tip in profiles[selectedPerson].advice">
+                    <div class="p-4 bg-orange-50/30 rounded-2xl text-xs text-stone-700 leading-relaxed border-l-2 border-amber-600/30" x-html="tip"></div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="px-8 py-12 bg-[#451a03] text-amber-50 space-y-8">
+      <div class="text-center">
+        <h2 class="text-2xl text-amber-200">来自 2025 年的家书</h2>
+      </div>
+      <div class="text-sm leading-[2] text-amber-100/70 whitespace-pre-line font-bold">
+        <p x-text="fullLetter"></p>
+      </div>
+      <div class="pt-10 border-t border-white/5 text-right">
+        <p class="text-[10px] text-amber-500 font-bold tracking-[0.4em]">2025 年的我们 敬上</p>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    function app() {
+      return {
+        viewMode: 'byQ',
+        activeQ: 1,
+        activeP: '爸爸',
+        selectedPerson: '爸爸',
+        isFlipped: false,
+        questions: {
+          1: '2025年的三个成就',
+          2: '2025年最开心的一天',
+          3: '最难忘的一件事',
+          4: '最不容易的一件事',
+          5: '2026年的具体改变',
+          6: '可以坚持的习惯',
+          7: '给彼此的祝福'
+        },
+        answers: [
+          {q:1, p:'爸爸', text:'第一，是管理层面的重要变化：妈妈进入了管理层，开始负责财务和人事相关工作，也让之前一些复杂、反复的问题有了明显改观，整体方向更清晰、更稳定。\n第二，是家庭层面的安排更加周全：和妈妈一起商量，为爷爷奶奶找到了合适的住家保姆，让家里老人能被更安心地照顾，也让大家在工作上更放心。\n第三，是生产和技术上的提升：引入并全面使用了自动化生产线和光谱相关设备，减少了人工、降低了成本，也提高了效率，是一个实实在在的长期投入。'},
+          {q:1, p:'弟弟', text:'第一，是在暑假参加了 ESAP 项目，这是一次走出日常学习环境、主动拓展视野的经历。\n第二和第三，是分别获得了 National Alpha Theta（数学荣誉学会） 和 Tri-M Music Honor Society 的证书，在数学和音乐两个不同方向上都得到了正式认可。'},
+          {q:1, p:'姐姐', text:'第一，是真正具备了开车、并能带着家人出行的能力。不只是学会开车，而是可以独立规划行程，带妈妈和弟弟一起去了优胜美地和佛罗里达，安排吃、住、行，把一家人安全、开心地带出去，这对她来说是非常实在的成长。\n第第二个成就来自工作上的站稳脚跟。在整体环境波动、很多人受到影响的情况下，她不仅没有被淘汰，还因为在工作中做出成绩、组织活动等表现，得到了老板的认可，在团队中找到了自己的位置。\n第三个重要成就，是搬到湾区，开启一段全新的生活。在新的环境里，她找到了自己的兴趣爱好，也尝试了很多以前没有尝试过的事情，这是一次真正意义上的“重新开始”。'},
+          {q:1, p:'妈妈', text:'第一件让她最开心、也最有成就感的事，是这一年里对爸爸身体的陪伴和照顾。看到他的各项身体指标比去年更好，这不仅是一件值得高兴的事，对她来说也是一种实实在在的成就。\n第二个成就来自工作中的全面参与和责任承担。在陶瓷厂的工作中，她逐渐进入到人事、财务以及厂子各个层面的管理，不再是“不了解、不知道”，而是真正参与、配合、并且能独立把事情做顺，成为可以帮爸爸分担的重要力量。\n第三件成就，是人生中一次重要的独立尝试——第一次自己一个人去美国。这次出行本身就是一种突破，也象征着她在心态和行动上的独立与自信。'},
+          {q:2, p:'爸爸', text:'最开心的一天是和妈妈一起在黄山游玩。不跟旅行团、两个人自己走在山里，看奇松怪石，那种自由和投入，是属于他们的快乐。'},
+          {q:2, p:'妈妈', text:'最开心的一天是和姐姐和弟弟一起在 Yosemite 走各种Trails。虽然很累，但那种“累并快乐着”的感觉，让她记得特别清楚。'},
+          {q:2, p:'姐姐', text:'最开心的是万圣节和弟弟一起，看装饰得很夸张的街区，第二天去环球影城和朋友们玩，看弟弟投篮投不进的小插曲反而成了最有意思、最放松的回忆。'},
+          {q:2, p:'弟弟', text:'最开心的一天是在 Everglades 看大鳄鱼、开着吉普车冲过水坑，那种刺激和新鲜感让人印象深刻。'},
+          {q:3, p:'爸爸', text:'最难忘的是一次情绪失控后的离开。争吵、独自坐火车回北京，在伤心、失落和冷静中度过了一段时间。那种一个人面对情绪的经历，让这件事变得格外难忘'},
+          {q:3, p:'妈妈', text:'最难忘的是一次身体和情绪都被记住的冲突。当下的伤痕后来变成了一个提醒，也让她真正意识到：这样的事情不能再发生。从那之后，对彼此的界限和情绪，都更警惕了。'},
+          {q:3, p:'姐姐', text:'最难忘的是一次第一次真正意识到“压力在身体里的样子”。并不是突然觉得自己撑不住，而是在某一个夜晚，身体先一步发出了强烈信号。那次失控、迷茫、难受的经历，让她意识到：有些压力不是想一想就能消化掉的，需要被认真对待。'},
+          {q:3, p:'弟弟', text:'最难忘的是一次近距离目睹灾难的经历。在车上看到远处的浓烟和山火，虽然当下并没有强烈的恐慌，但画面本身带来的冲击感，让这一天牢牢留在了记忆里。'},
+          {q:4, p:'爸爸', text:'最不容易的，是持续改变自己、不选择躺平。在企业经营面临压力和挑战的情况下，需要不断学习、调整思路、提高标准，从销售方式到管理流程，都要推翻旧的做法、建立新的规则。这种长期的自我要求，本身就是一件很不容易的事。'},
+          {q:4, p:'妈妈', text:'最不容易的是一次重新学习、重新上手的过程。从长期用手工方式管理几百人的信息，到真正开始学习并使用 Excel，这中间花了很多时间，也并不轻松。但在有人耐心教、自己愿意学的情况下，她发现很多事情并没有想象中那么难，也一步步把复杂的工作真正做顺了。'},
+          {q:4, p:'姐姐', text:'不容易来自第一次承担领导和协作的责任。在组织公司级大型活动时，从一开始不知道如何分配工作、担心同事的反馈，到后来学会沟通、协作、让每个人发挥所长，最终把一件非常复杂的事情落地完成，并且得到认可。这对她来说，是一次非常真实的成长。'},
+          {q:4, p:'弟弟', text:'最不容易的是一种努力但结果不完全由自己掌控的挫折感。在英语课上付出了努力，却依然受到规则、标准或他人决定的影响，这种“尽力了却不一定如愿”的经历，让人感到无力，但也是真正会被记住的一种成长体验。'},
+          {q:5, p:'爸爸', text:'希望在新的一年里，从紧绷和消耗，变成身心更平衡的状态。他想通过更多锻炼、清淡饮食、调整作息，在妈妈的管理和支持下，把睡眠和心态都调回来，让自己能够更健康、更长期地投入工作。'},
+          {q:5, p:'妈妈', text:'希望在新的一年里，从操心太多、承担太多，变成更爱自己、对自己更温柔。她选择通过减少去陶瓷厂、放下一部分事务，让生活节奏慢下来，把注意力更多放回到自己身上。'},
+          {q:5, p:'姐姐', text:'希望在心态上做出改变，从容易被外界评价影响，变成更专注于把事情本身做好。她想通过提升自信、少纠结不可控的事情，同时给自己安排更多有意义的事，而不是把全部注意力都放在工作上。'},
+          {q:5, p:'弟弟', text:'希望从拖延和被动，变成更主动地把事情一件件完成。具体做法是提前把重要任务完成，比如比赛、夏校、考试等，减少临时堆积带来的压力，也避免因为压力影响身体状态。'},
+          {q:6, p:'爸爸', text:'规律运动：一周五天、每天走八公里左右，大约一万步。这是一个清晰、可量化、也能长期坚持的方式，用来稳住身体和状态。'},
+          {q:6, p:'妈妈', text:'希望从今年开始，一个月至少读一本书，不限定内容，把阅读当成一种给自己的陪伴和放松。'},
+          {q:6, p:'姐姐', text:'给自己留时间的习惯：每天睡前五分钟冥想，让大脑放空；同时在日历里固定 block 出一小时运动时间，不被消息打断，用一种“强制但温柔”的方式把时间还给自己。'},
+          {q:6, p:'弟弟', text:'坚持打卡Duolingo，到现在已经持续了七百多天。同时，他也希望继续每天做二十个俯卧撑，用小而稳定的方式保持身体和节奏。'},
+          {q:7, p:'爸爸', text:'家人给爸爸的祝福，集中在身体和心态上。希望他少生气、少钻牛角尖，多运动、多休息，也多一点信任，把责任分出去，把时间留给自己。因为大家都知道，只有爸爸照顾好身体，家里的人才能真正安心。'},
+          {q:7, p:'妈妈', text:'家人给妈妈的祝福，是对她的肯定和心疼。希望她少操心、多爱自己，不用把所有事情都扛在肩上。她已经在一个新的领域里做得很好，很多判断和决定来自她自己的智慧，而不是资历。新的一年，希望她在忙碌的同时，也能好好犒劳自己。'},
+          {q:7, p:'姐姐', text:'家人给姐姐的祝福，既有轻松的期待，也有真诚的支持。希望她慢下来，把生活理顺，开开心心地过好当下，不管是单身还是未来的关系，都能按照自己的节奏来。'},
+          {q:7, p:'弟弟', text:'家人给弟弟的祝福，是信任和鼓励。希望他一步一步把事情做好，撑住当下的压力，继续向更好的大学和更大的舞台走。大家相信他的努力、运气，也相信他的能力。'}
+        ],
+        profiles: {
+          '爸爸': {
+            keywords: '责任感强、标准高、容易把压力往自己身上收',
+            letter: '这一年，你做的很多事情都不是表面上容易被看到的。你一边面对企业经营的压力，一边不断逼自己学习、调整方式，不选择躺平，不固守过去的经验。走向2026，你选择把改变放在心态和身体上，少一点消耗，多一点平衡。对这个家来说，你最大的意义从来不只是“扛事”，而是你在，且你是健康、平稳的。\n\n' + '从你的回答里可以看出，你对“责任”和“结果”的敏感度非常高。你习惯把问题往自己身上揽——市场不好、客户不稳定、团队执行不到位，最终都会变成你在反思“我是不是该再改一点”。你其实已经开始在做一件很重要的转变：从“讨好型负责”走向“有边界的负责”。但这个转变对你来说并不轻松，因为你对“放手”和“信任”的容忍度还在适应中。',
+            advice: ['<b>1. 把“标准”写下来，而不是放在心里</b>: 你现在很多判断其实已经很成熟了，但如果只存在脑子里，就会变成反复纠结。把哪些事是“必须做到”、哪些是“可以接受的不完美”明确写出来，会大幅降低内耗。','<b>2. 给自己一个“非生产性时间”的正当性</b>: 不是所有价值都来自产出。对你来说，真正需要练习的是：不做事≠没价值。','<b>3. 刻意训练“延迟反应”</b>: 情绪上来时，先不做任何决定（哪怕是沟通），这是对你和家人都最有利的。']
+          },
+          '妈妈': {
+            keywords: '学习能力强、韧性高、长期忽视自己的边界',
+            letter: '这一年，你在照顾别人、支撑家庭和重新走进一个全新角色之间，悄悄完成了很多突破。你陪伴爸爸、关心他的身体，也真正走进了工作里的核心部分，从人事到财务，从“不会”“不熟”到一步一步学会、扛住。重新学习 Excel、第一次独立出国，这些都不是小事，而是你在为自己的人生不断打开新的可能。那些不容易、甚至有点痛的记忆，也让你更清楚边界和自我保护的重要。走向新的一年，你开始把“少操心、好好爱自己”当成一种选择。你已经做得很好了，接下来，你也值得被自己温柔对待。\n\n' + 
+'从你的回答里可以看出，你这一年最大的变化不是“做了更多事”，而是你开始意识到：你其实可以学、可以做、也可以进入核心。你过去很长时间是靠“忍”和“扛”在走，但今年你第一次清楚地看到：当你被真正教、真正支持时，你的学习速度非常快。',
+            advice: ['<b>1. 不要把“学会了”当成新的责任</b>: 你现在容易进入另一个陷阱：既然我学会了，那我是不是就该继续多扛一点？不一定。','<b>2. 给“不会”留一个合法位置</b>: 你已经证明了你能学，但你也有权选择不学、不接、不负责。','<b>3. 把“开心”当成一个指标,而不是奖励</b>: 不是等事情做完了才能开心，而是开心本身就是你该被照顾的部分。']
+          },
+          '姐姐': {
+            keywords: '自驱力强、反思深、容易对自己要求过高',
+            letter: '这一年，你完成的是一场真正的“进入新阶段”。你学会独立开车、带着家人走向更远的地方；在不稳定的环境里，你没有被淘汰，反而靠能力和投入站稳了位置；你搬到新的城市，开始探索属于自己的生活方式。最难忘的那一刻，是你第一次意识到：压力并不总是以想法出现，它会直接写在身体上。组织大型项目的那段时间，你从“什么都想自己来”走向了学会分工、协作和信任团队。走向 2026，你选择慢下来、更相信自己、少被评价牵着走。这不是退后，而是更成熟地往前走。\n\n' + '你对自己的觉察非常敏锐，尤其是在“压力如何通过身体显现”这件事上。你已经走到了一个很关键的节点：你不再只是靠意志力硬撑，而是开始意识到系统性的问题（角色、节奏、协作）。',
+            advice: ['<b>1. 不要急着把“慢下来”变成另一个KPI</b>: 你很容易把自我调整也变成“我要把它做好”。慢下来不是任务，是状态。','<b>2. 允许自己阶段性“只做好60%”</b>: 对你来说，60% 可能已经是别人 90% 的质量了。','<b>3. 多保留“无意义的快乐”</b>: 不是每一件事都要有成长价值，有些事只是为了让你活得更像一个人。']
+          },
+          '弟弟': {
+            keywords: '自知清醒、长期坚持、容易被结果打击信心',
+            letter: '这一年，你的成长是长期而扎实的。夏校、荣誉证书、持续了七百多天的打卡，这些背后是你对节奏和坚持的理解。你也经历了努力却不一定立刻有结果的挫折，看见过灾难性的场景，体会过压力对身体的影响。你很清楚自己有时候会拖延，但你也已经在学习如何提前完成、如何稳住状态。走向 2026，你给自己的祝福只有两个字：撑住。其实这两个字背后，是你对未来的认真，是你知道自己正在往一个更大的世界走。你不用急，一步一步来就够了。\n\n' + '你其实对自己的状态看得很清楚：你知道你会拖延、会被压力影响，也知道自己并不是“什么都不干”。你最大的问题不是不努力，而是容易把一次结果，解读成对自己的整体判断。',
+            advice: ['<b>1. 把“努力”拆成你能控制的最小单位</b>: 你已经在长期打卡上证明了你有耐力，但学习和考试需要更细颗粒度的反馈。','<b>2. 不要过早给自己贴性格标签</b>: “懒”不是你的本质，而是某些压力下的应对方式。','<b>3. 学会区分“系统问题”和“个人问题”</b>: 有些结果不是你不行，而是规则本身就苛刻。']
+          }
+        },
+        familyAdvice: '你们这一家有一个非常明显的共同点: 所有人都在往“更稳、更久”走，而不是“更快、更狠”。\n' + 
+'但要注意一个潜在风险：全家人都太习惯“自己消化”，反而容易低估彼此的承受量。\n\n' +
+'<b>给你们的共同建议</b>：\n' +
+'<b>1. 多说“我最近有点累”，少等到“我撑不住了”。</b>\n' + 
+'<b>2. 把家庭当作情绪缓冲区，而不是情绪终点站。</b>\n'+
+'<b>3. 不要等出问题再调整节奏，平时就可以慢一点。</b>\n'
+,
+        fullLetter: '亲爱的2026年的我们：\n\n当你们读到这封信的时候，2025年已经安静地留在身后了。\n\n这一年，我们没有把“成功”当成唯一的方向，却一次又一次地，把“把日子过稳、过久”放在了心里。\n\n这一年里，我们都在不同的位置上忙碌、学习、承受、调整。\n有人在压力里反复推翻旧的做法，重新思考规则和边界；\n 有人在家庭和工作之间来回切换，学着承担，也学着放下；\n有人在新的城市、新的角色里，摸索如何站稳、如何合作；\n有人在成长的路上体会到挫折、限制与不确定，却依然选择往前。\n\n如果要说我们在2025年真正共同相信的是什么，那大概是几件看起来很朴素、却很重要的事：\n\n我们相信，身体和心态，比任何成绩都重要；\n没有谁必须一直硬撑，照顾好自己，是对彼此最大的负责。\n\n我们相信，学习和改变不分年龄、不分角色；\n不会并不可怕，愿意学、肯去试，本身就是能力。\n\n我们相信，家不是消耗彼此的地方，而是互相托底的地方；\n不需要完美，只要在关键时刻，有人站在你这一边。\n\n我们也慢慢学会，很多事情无法完全控制，与其焦虑结果，不如把眼前该做的事，一件一件做好。\n\n走向2026年，我们希望一家人：睡得好一点，心气平一点，少一点操心，多一点信任，在各自的路上走，但始终知道，背后有彼此。\n\n如果 2026 年的你们感到疲惫、迷茫，请记得 2025 年的我们想说的不是“再坚持一下”，而是：\n慢一点没关系，稳一点更重要，\n一家人在一起，本身就是答案。',
+      }
+    }
+  </script>
+</body>
+</html>
